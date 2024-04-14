@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const app = express();
 
@@ -14,6 +15,8 @@ app.use(cors()); // Enable CORS
 
 // Routes
 app.use(userRoutes); // Mount user routes
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Database connection
 connect();

@@ -6,7 +6,7 @@ const product=new mongoose.Schema({
     tags:"string",
     imageFile:"string",
     shippingMethod:"string",
-    sellerName:"sting",
+    sellerName:"string",
     contactEmail:"string"
 
 })
