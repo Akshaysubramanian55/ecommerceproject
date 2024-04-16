@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { Link, useNavigate } from 'react-router-dom';
 
 function Seller() {
     const [productName, setProductName] = useState("");
@@ -10,6 +11,9 @@ function Seller() {
     const [shippingMethod, setShippingMethod] = useState("");
     const [sellerName, setSellerName] = useState("");
     const [contactEmail, setContactEmail] = useState("");
+    const navigate = useNavigate();
+
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -46,8 +50,7 @@ function Seller() {
                     title: 'Success',
                     text: response.data.message,
                 }).then(() => {
-                    // Redirect to home page after successful item addition
-                    window.location.href = '/'; // Navigate to the home page using window.location
+                    navigate('/getproducts')
                 });
             } else {
                 Swal.fire({

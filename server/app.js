@@ -15,7 +15,7 @@ app.use(cors()); // Enable CORS
 
 // Routes
 app.use(userRoutes); // Mount user routes
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/controller/uploads', express.static(path.join(__dirname,'controller', 'uploads')));
 
 
 // Database connection

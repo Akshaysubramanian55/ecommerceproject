@@ -65,58 +65,37 @@ exports.signup = async function (req, res) {
 
 
 exports.signin = async function (req, res) {
-
-
     try {
+        const { email, password } = req.body;
 
-        let email = req.body.email;
-        let password = req.body.password;
-
-
+        // Find user by email
         const user = await users.findOne({ email });
 
         if (!user) {
-            let response = error_function({
-                statusCode: 401,
-                message: "No user found"
+            return res.status(401).json({ message: "No user found" });
+        }
+
+        // Compare passwords
+        const match = await bcrypt.compare(password, user.password);
+
+        if (match) {
+            // Generate JWT token
+            const accessToken = jwt.sign({ user_id: user._id }, process.env.PRIVATE_KEY, { expiresIn: "1d" });
+
+            // Send success response with token and user role
+            return res.status(200).json({
+                token: accessToken,
+                role: user.role,
+                message: "Login Successful"
             });
-            res.status(response.statusCode).send(response.message);
         } else {
-            let db_password = user.password;
-
-            bcrypt.compare(password, db_password, (err, auth) => {
-                if (auth === true) {
-                    let access_token = jwt.sign({ user_id: user._id }, process.env.PRIVATE_KEY, { expiresIn: "1d" });
-                    console.log("access_token : ", access_token);
-
-                    let response = success_function({
-                        statusCode: 200,
-                        data: {
-                            token: access_token,
-
-                        },
-                        message: "Login Successful",
-                    });
-                    res.status(response.statusCode).send(response.message);
-                    return;
-                } else {
-                    let response = error_function({
-                        statusCode: 401,
-                        message: "Invalid credentials"
-                    });
-                    res.status(response.statusCode).send(response.message);
-                    return;
-                }
-            });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
     } catch (error) {
-        let response = error_function({
-            statusCode: 402,
-            message: "invalid email"
-        });
-        return res.status(response.statusCode).send(response.message);
+        console.error("Signin error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
 
 exports.seller = async function (req, res) {
     const { productName, price, tags, imageBase64, shippingMethod, sellerName, contactEmail } = req.body;
@@ -138,7 +117,7 @@ exports.seller = async function (req, res) {
 
         // Save the image to the server's file system
 
-        const uploadDir = path.join(__dirname, './uploads');
+        const uploadDir = path.join(__dirname, '/uploads');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir);
         }
@@ -180,7 +159,7 @@ exports.seller = async function (req, res) {
 
 }
 
-exports.getuser=async function(req,res){
+exports.getuser = async function (req, res) {
 
     try {
         // Fetch all products from the database
@@ -211,4 +190,39 @@ exports.getuser=async function(req,res){
         };
         res.status(500).send(response);
     }
+}
+
+exports.getproducts =async function(req,res){
+
+
+    try {
+        // Fetch all products from the database
+        const allProducts = await products.find();
+
+        if (allProducts && allProducts.length > 0) {
+            // Sending success response with fetched products
+            const response = {
+                statusCode: 200,
+                message: "Success",
+                data: allProducts
+            };
+            res.status(200).send(response);
+        } else {
+            // Sending error response if no products found
+            const response = {
+                statusCode: 404,
+                message: "No products found"
+            };
+            res.status(404).send(response);
+        }
+    } catch (error) {
+        // Handling database or server errors
+        console.error('Error fetching products:', error);
+        const response = {
+            statusCode: 500,
+            message: "Internal Server Error"
+        };
+        res.status(500).send(response);
     }
+    
+}

@@ -6,5 +6,6 @@ const Usercontroller=require('../controller/Usercontroller')
 router.post('/signup',Usercontroller.signup);
 router.post('/signin',Usercontroller.signin);
 router.post('/seller',Usercontroller.seller);
-router.get('/getproducts',Usercontroller.getuser);
+router.get('/getuser',Usercontroller.getuser);
+router.get('/getproduct',Usercontroller.getproducts);
 module.exports=router;
