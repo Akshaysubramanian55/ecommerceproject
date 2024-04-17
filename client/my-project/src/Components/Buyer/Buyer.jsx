@@ -49,10 +49,10 @@ function Buyer() {
                             <div key={product._id} className="bg-white rounded-lg overflow-hidden shadow-lg">
                                 {product.imageFile && (
                                     <img
-                                        src={`${product.imageFile}`}
+                                    src={`http://localhost:3100${product.imageFile}`} // Construct image URL
                                         alt={product.productName}
-                                        className="w-full h-64 object-cover"
-                                    />
+                                        className="w-full h-64 object-contain rounded-lg shadow-md"
+                                        style={{ objectFit: 'contain' }}                                    />
                                 )}
                                 <div className="p-6">
                                     <h3 className="text-xl font-semibold mb-2 text-gray-800">{product.productName}</h3>

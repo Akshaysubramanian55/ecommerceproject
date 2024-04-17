@@ -33,8 +33,8 @@ function Signup() {
                     text: response.data.message,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Redirect to signin page after successful signup
-                        navigate('/'); // Assuming you are using React Router
+                        
+                        navigate('/'); 
                     }
                 });
             } else {

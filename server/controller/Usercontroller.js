@@ -101,63 +101,54 @@ exports.seller = async function (req, res) {
     const { productName, price, tags, imageBase64, shippingMethod, sellerName, contactEmail } = req.body;
 
     console.log(req.body)
-    const productexist = await products.findOne({ productName })
+    const Image = imageBase64.split(';base64,').pop();
+    const binaryImage = Buffer.from(Image, 'base64');
 
-    if (productexist) {
-        let response = error_function({
-            statusCode: 400,
-            message: "product already exists"
+
+    // Save the image to the server's file system
+
+    const uploadDir = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
+    }
+    const fileName = `${Date.now()}.png`;
+
+    const relativePath = `/uploads/${fileName}`;
+
+
+    // Write buffer to file
+    const filePath = path.join(uploadDir, fileName);
+    fs.writeFileSync(filePath, binaryImage);
+
+    const new_product = await products.create({
+        productName,
+        price,
+        tags,
+        imageFile: relativePath,
+        shippingMethod,
+        sellerName,
+        contactEmail
+    })
+
+    if (new_product) {
+        let response = success_function({
+            statusCode: 200,
+            message: "Product added Successfully"
         })
         return res.status(response.statusCode).send(response.message)
     } else {
-
-        const Image = imageBase64.split(';base64,').pop();
-        const binaryImage = Buffer.from(Image, 'base64');
-
-
-        // Save the image to the server's file system
-
-        const uploadDir = path.join(__dirname, '/uploads');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-        }
-        const fileName = `${Date.now()}.png`;
-
-        const relativePath = `/uploads/${fileName}`;
-
-
-        // Write buffer to file
-        const filePath = path.join(uploadDir, fileName);
-        fs.writeFileSync(filePath, binaryImage);
-
-        const new_product = await products.create({
-            productName,
-            price,
-            tags,
-            imageFile: relativePath,
-            shippingMethod,
-            sellerName,
-            contactEmail
+        let response = error_function({
+            statusCode: 400,
+            message: "product adding failed"
         })
-
-        if (new_product) {
-            let response = success_function({
-                statusCode: 200,
-                message: "Product added Successfully"
-            })
-            return res.status(response.statusCode).send(response.message)
-        } else {
-            let response = error_function({
-                statusCode: 400,
-                message: "product adding failed"
-            })
-            return res.status(response.statusCode).send(response.message)
-        }
+        return res.status(response.statusCode).send(response.message)
     }
+    
+    }  
 
 
 
-}
+
 
 exports.getuser = async function (req, res) {
 
@@ -172,7 +163,7 @@ exports.getuser = async function (req, res) {
                 message: "Success",
                 data: allProducts
             };
-            res.status(200).send(response);
+            res.status(200).json(response);
         } else {
             // Sending error response if no products found
             const response = {
