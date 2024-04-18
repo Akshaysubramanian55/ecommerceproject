@@ -5,6 +5,7 @@ import Signup from './Components/Signup/Signup'
 import Signin from './Components/Signin/Signin'
 import GetProduct from './Components/Listing/Listing';
 import Buyer from './Components/Buyer/Buyer';
+import EditProduct from './Components/Productdetails/Productdetails';
 function App() {
 
   return (
@@ -17,6 +18,8 @@ function App() {
           <Route path='/seller' exact element={<Seller/>}/>
           <Route path='/getproducts' exact element={<GetProduct/>}/>
           <Route path='/' exact element={<Buyer/>}/>
+          <Route path='/getproduct/:productId' exact element={<EditProduct/>}/>
+
         </Routes>
       </div>
      </Router>

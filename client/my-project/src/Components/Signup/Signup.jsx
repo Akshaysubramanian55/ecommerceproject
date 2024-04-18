@@ -34,7 +34,7 @@ function Signup() {
                 }).then((result) => {
                     if (result.isConfirmed) {
                         
-                        navigate('/'); 
+                        navigate('/signin'); 
                     }
                 });
             } else {
