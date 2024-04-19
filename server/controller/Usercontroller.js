@@ -270,4 +270,19 @@ exports.Updateproduct = async function (req, res) {
         res.status(500).send(response);
     }
 }
+exports.cartproducts=async function(req,res){
+    try {
+        const productId = req.params.productId;
+        const product = await products.findById(productId);
+        if (!product) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        
+        res.json(product);
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+}
 

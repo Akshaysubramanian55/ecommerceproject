@@ -10,5 +10,5 @@ router.get('/getuser',Usercontroller.getuser);
 router.get('/getproduct',Usercontroller.getproducts);
 router.get('/:productId',Usercontroller.productdetails);
 router.put('/:productId',Usercontroller.Updateproduct);
-
+router.get('/:productId',Usercontroller.cartproducts)
 module.exports=router;
