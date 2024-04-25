@@ -10,16 +10,16 @@ const connect = require('./db/config');
 const userRoutes = require('./routes/userroutes');
 
 // Middleware
-app.use(express.json()); // Parse JSON bodies
 app.use(cors()); // Enable CORS
+app.use(express.json());
 
 // Routes
 app.use(userRoutes); // Mount user routes
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 app.use('/getproduct', userRoutes);
 app.use('/updateproduct',userRoutes)
 app.use('/cartproduct',userRoutes)
+app.use('/addreview',userRoutes)
 // Database connection
 connect();
 

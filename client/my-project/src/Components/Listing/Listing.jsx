@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Navbar from "./Navbar/Navbar";
 import { Link } from "react-router-dom";
-
+import Footer from "../Footer/Footer";
 function GetProduct() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -83,6 +83,7 @@ function GetProduct() {
                     )}
                 </div>
             )}
+            <Footer/>
         </div>
     );
 }

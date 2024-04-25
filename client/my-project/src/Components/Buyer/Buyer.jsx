@@ -3,7 +3,7 @@ import Navbar from "./Navbar/Navbar";
 import ImageCarousel from "./Courasel/Courasel";
 import axios from 'axios';
 import { Link } from "react-router-dom";
-
+import Footer from "../Footer/Footer";
 function Buyer() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -88,6 +88,7 @@ function Buyer() {
                     </div>
                 )}
             </div>
+        <Footer/>
         </div>
     );
 }

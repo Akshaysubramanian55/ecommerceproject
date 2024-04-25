@@ -6,6 +6,8 @@ const users = require('../db/users')
 const products = require('../db/product')
 const path = require('path');
 const fs = require('fs');
+const Cart = require('../db/cart');
+const mongoose = require('mongoose');
 
 
 exports.signup = async function (req, res) {
@@ -143,8 +145,8 @@ exports.seller = async function (req, res) {
         })
         return res.status(response.statusCode).send(response.message)
     }
-    
-    }  
+
+}
 
 
 
@@ -183,7 +185,7 @@ exports.getuser = async function (req, res) {
     }
 }
 
-exports.getproducts =async function(req,res){
+exports.getproducts = async function (req, res) {
 
 
     try {
@@ -215,25 +217,30 @@ exports.getproducts =async function(req,res){
         };
         res.status(500).send(response);
     }
-    
+
 }
 
-exports.productdetails=async function(req,res){
+exports.productdetails = async function (req, res) {
     try {
         const productId = req.params.productId;
+
+        // Check if productId is a valid ObjectId
+        if (!mongoose.isValidObjectId(productId)) {
+           
+            return res.status(400).json({ error: 'Invalid productId' });
+        }
         const product = await products.findById(productId);
+
         if (!product) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'Product not found' });
         }
 
-        
         res.json(product);
     } catch (error) {
-        console.error('Error fetching user details:', error);
+        console.error('Error fetching product details:', error);
         res.status(500).json({ error: 'Server error' });
     }
 }
-
 exports.Updateproduct = async function (req, res) {
 
 
@@ -270,15 +277,16 @@ exports.Updateproduct = async function (req, res) {
         res.status(500).send(response);
     }
 }
-exports.cartproducts=async function(req,res){
+exports.cartproducts = async function (req, res) {
     try {
         const productId = req.params.productId;
+       
         const product = await products.findById(productId);
         if (!product) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        
+
         res.json(product);
     } catch (error) {
         console.error('Error fetching user details:', error);
@@ -286,3 +294,101 @@ exports.cartproducts=async function(req,res){
     }
 }
 
+exports.reviews = async function (req, res) {
+    const productId = req.params.productId;
+    const { userName, rating, comment } = req.body;
+
+    try {
+        // Find the product by productId
+        const product = await products.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Add the new review to the product's reviews array
+        product.reviews.push({ userName, rating, comment });
+
+        // Save the updated product document
+        await product.save();
+
+        res.status(201).json({ message: 'Review added successfully' });
+    } catch (error) {
+        console.error('Error adding review:', error);
+        res.status(500).json({ error: 'Failed to add review' });
+    }
+}
+exports.addcart = async function (req, res) {
+
+    const { userId, productId } = req.body;
+    try {
+        // Check if the cart entry already exists for the given userId and productId
+        const existingCartEntry = await Cart.findOne({ userId: userId, productId: productId });
+
+        if (existingCartEntry) {
+            // If the cart entry already exists, return a message indicating that it's a duplicate
+            return res.status(400).send("This product is already in the user's cart.");
+        } else {
+            // Create a new cart entry if it doesn't already exist
+            const cartEntry = await Cart.create({
+                userId: userId,
+                productId: productId
+            });
+
+            if (cartEntry) {
+                // Return success response if cart entry was created successfully
+                return res.status(200).send("Cart item added successfully.");
+            } else {
+                // Return error response if cart entry creation failed
+                return res.status(400).send("Failed to add item to cart.");
+            }
+        }
+    } catch (error) {
+        // Handle any errors that occur during the process
+        console.error("Error adding item to cart:", error);
+        return res.status(500).send("Something went wrong.");
+    }
+
+
+}
+
+
+exports.mycart = async function (req, res) {
+
+
+    const userId = req.body.userId; // Assuming userId is obtained from authenticated user
+    console.log(userId)
+    try {
+        // Find all cart items for the specified user
+        const cartItems = await Cart.find({ userId });
+        console.log(cartItems)
+        if (!cartItems || cartItems.length === 0) {
+            return res.status(404).json({ message: 'Cart is empty' });
+        }
+
+        // Array to store populated cart items
+        const populatedCartItems = [];
+
+        // Loop through each cart item to populate user and product details
+        for (const cartItem of cartItems) {
+            const user = await users.findById(cartItem.userId); // Fetch user details
+            const product = await products.findById(cartItem.productId); // Fetch product details
+
+            if (user && product) {
+                // Construct a populated cart item object
+                const populatedCartItem = {
+                    userId: user,
+                    productId: product,
+                    quantity: cartItem.quantity
+                };
+                populatedCartItems.push(populatedCartItem);
+            }
+        }
+
+        // Return populated cart items in the response
+        return res.status(200).json(populatedCartItems);
+    } catch (error) {
+        console.error('Error fetching cart items:', error);
+        return res.status(500).json({ message: 'Something went wrong' });
+    }
+}
