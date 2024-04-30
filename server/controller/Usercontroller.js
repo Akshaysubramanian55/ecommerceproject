@@ -356,8 +356,8 @@ exports.addcart = async function (req, res) {
 exports.mycart = async function (req, res) {
 
 
-    const userId = req.body.userId; // Assuming userId is obtained from authenticated user
-    console.log(userId)
+    const userId = req.query.userId; //  userId is obtained from authenticated user
+    console.log("id:",userId)
     try {
         // Find all cart items for the specified user
         const cartItems = await Cart.find({ userId });
@@ -379,12 +379,11 @@ exports.mycart = async function (req, res) {
                 const populatedCartItem = {
                     userId: user,
                     productId: product,
-                    quantity: cartItem.quantity
                 };
                 populatedCartItems.push(populatedCartItem);
             }
         }
-
+console.log(populatedCartItems)
         // Return populated cart items in the response
         return res.status(200).json(populatedCartItems);
     } catch (error) {

@@ -7,6 +7,8 @@ import GetProduct from './Components/Listing/Listing';
 import Buyer from './Components/Buyer/Buyer';
 import EditProduct from './Components/Productdetails/Productdetails';
 import CartProduct from './Components/Cart/Cart';
+import Mycartobjects from './Components/Mycartobjects/Mycartobj';
+
 function App() {
 
   return (
@@ -21,7 +23,7 @@ function App() {
             <Route path='/' exact element={<Buyer />} />
             <Route path='/getproduct/:productId' exact element={<EditProduct />} />
             <Route path='/cartproduct/:productId' exact element={<CartProduct />} />
-
+            <Route path='/mycart' exact element={<Mycartobjects />} />
           </Routes>
         </div>
       </Router>

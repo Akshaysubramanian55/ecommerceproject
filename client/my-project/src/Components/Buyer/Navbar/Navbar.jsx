@@ -2,24 +2,23 @@ import React from "react";
 import { Link } from "react-router-dom";
 function Navbar() {
     return (
-        <nav className="bg-gray-800 py-2">
+        <nav className="bg-yellow-100 py-2">
             <div className="container mx-auto px-4 md:flex md:items-center md:justify-between">
                 {/* Logo */}
                 <div className="flex items-center justify-between">
-                    <div className="text-white text-lg font-bold">My App</div>
+                    <div className="text-black text-lg font-bold">My App</div>
 
-                   
+
                 </div>
 
                 {/* Navigation Links */}
-                <ul className="md:flex hidden space-x-4 text-white">
-                    <li>
-                        <Link to="/" className="hover:text-gray-300">Home</Link>
-                    </li>
-                    <li>
-                        <Link to="/signin" className="hover:text-gray-300">Sign In</Link>
-                    </li>
-                    <li> My Cart</li>
+                <ul className="md:flex hidden space-x-4 text-black">
+
+                    <button><Link to="/" >Home</Link> </button>
+
+                    <button><Link to="/signin" >Sign In</Link> </button>
+
+                    <button><Link to="/mycart" > My Cart</Link> </button>
                 </ul>
 
                 {/* Search Input */}
@@ -37,7 +36,7 @@ function Navbar() {
                 <Link to="/" className="text-white hover:text-gray-300 py-1">Home</Link>
                 <Link to="/signin" className="text-white hover:text-gray-300 py-1">Sign In</Link>
             </div>
-            
+
         </nav>
     );
 }

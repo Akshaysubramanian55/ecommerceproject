@@ -139,7 +139,7 @@ function CartProduct() {
                                 <button
                                     className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline mr-4"
                                 >
-                                    Go to Cart
+                                    Added to card
                                 </button>
                             ) : (
                                 <button

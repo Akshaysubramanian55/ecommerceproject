@@ -2,12 +2,12 @@ import React from "react";
 
 function Footer() {
     return (
-        <div className="bg-gray-800 text-white py-6">
-            <div className="container mx-auto px-4 md:flex md:justify-center md:gap-8">
+        <footer className="bg-yellow-100 text-black py-12 border-t border-gray-600">
+            <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
                 {/* Column 1: About */}
-                <div className="mb-4 md:mb-0">
-                    <h3 className="text-lg font-semibold mb-2">ABOUT</h3>
-                    <ul className="space-y-1">
+                <div>
+                    <h3 className="text-xl font-bold mb-4">ABOUT</h3>
+                    <ul className="space-y-2">
                         <li>Contact Us</li>
                         <li>About Us</li>
                         <li>Careers</li>
@@ -15,9 +15,9 @@ function Footer() {
                 </div>
 
                 {/* Column 2: Help */}
-                <div className="mb-4 md:mb-0">
-                    <h3 className="text-lg font-semibold mb-2">HELP</h3>
-                    <ul className="space-y-1">
+                <div>
+                    <h3 className="text-xl font-bold mb-4">HELP</h3>
+                    <ul className="space-y-2">
                         <li>Payments</li>
                         <li>Shipping</li>
                         <li>Cancellation and Returns</li>
@@ -27,8 +27,8 @@ function Footer() {
 
                 {/* Column 3: Consumer Policy */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-2">CONSUMER POLICY</h3>
-                    <ul className="space-y-1">
+                    <h3 className="text-xl font-bold mb-4">CONSUMER POLICY</h3>
+                    <ul className="space-y-2">
                         <li>Cancellation & Returns</li>
                         <li>Terms of Use</li>
                         <li>Security</li>
@@ -36,8 +36,10 @@ function Footer() {
                     </ul>
                 </div>
             </div>
-        </div>
+        </footer>
     );
 }
 
 export default Footer;
+
+
