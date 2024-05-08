@@ -8,7 +8,8 @@ import Buyer from './Components/Buyer/Buyer';
 import EditProduct from './Components/Productdetails/Productdetails';
 import CartProduct from './Components/Cart/Cart';
 import Mycartobjects from './Components/Mycartobjects/Mycartobj';
-
+import Order from  './Components/Order/Order';
+import Mywishlist from './Components/Mywishlist/Mywishlist';
 function App() {
 
   return (
@@ -24,6 +25,9 @@ function App() {
             <Route path='/getproduct/:productId' exact element={<EditProduct />} />
             <Route path='/cartproduct/:productId' exact element={<CartProduct />} />
             <Route path='/mycart' exact element={<Mycartobjects />} />
+            <Route path='/myorders' exact element={<Order/>}/>
+            <Route path='/mywishlist' exact element={<Mywishlist/>}/>
+
           </Routes>
         </div>
       </Router>

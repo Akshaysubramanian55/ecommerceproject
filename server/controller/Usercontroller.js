@@ -8,8 +8,8 @@ const path = require('path');
 const fs = require('fs');
 const Cart = require('../db/cart');
 const mongoose = require('mongoose');
-
-
+const wishlist = require('../db/wishlist');
+const order = require('../db/order');
 exports.signup = async function (req, res) {
 
     try {
@@ -226,7 +226,7 @@ exports.productdetails = async function (req, res) {
 
         // Check if productId is a valid ObjectId
         if (!mongoose.isValidObjectId(productId)) {
-           
+
             return res.status(400).json({ error: 'Invalid productId' });
         }
         const product = await products.findById(productId);
@@ -280,7 +280,7 @@ exports.Updateproduct = async function (req, res) {
 exports.cartproducts = async function (req, res) {
     try {
         const productId = req.params.productId;
-       
+
         const product = await products.findById(productId);
         if (!product) {
             return res.status(404).json({ error: 'User not found' });
@@ -357,11 +357,9 @@ exports.mycart = async function (req, res) {
 
 
     const userId = req.query.userId; //  userId is obtained from authenticated user
-    console.log("id:",userId)
     try {
         // Find all cart items for the specified user
         const cartItems = await Cart.find({ userId });
-        console.log(cartItems)
         if (!cartItems || cartItems.length === 0) {
             return res.status(404).json({ message: 'Cart is empty' });
         }
@@ -383,11 +381,169 @@ exports.mycart = async function (req, res) {
                 populatedCartItems.push(populatedCartItem);
             }
         }
-console.log(populatedCartItems)
         // Return populated cart items in the response
         return res.status(200).json(populatedCartItems);
     } catch (error) {
         console.error('Error fetching cart items:', error);
+        return res.status(500).json({ message: 'Something went wrong' });
+    }
+}
+
+exports.wishlist = async function (req, res) {
+    const { userId, productId } = req.body;
+
+    console.log(req.body)
+    try {
+        const existingwishlist = await wishlist.findOne({ userId: userId, productId: productId });
+
+        if (existingwishlist) {
+            return res.status(400).send("product already in wishlist")
+        } else {
+            const wishlistitem = await wishlist.create({
+                userId: userId,
+                productId: productId
+            });
+            if (wishlistitem) {
+                // Return success response if cart entry was created successfully
+                return res.status(200).send("added to wishlist  successfully.");
+            } else {
+                // Return error response if cart entry creation failed
+                return res.status(400).send("Failed to add to wishlist.");
+            }
+        }
+    } catch (error) {
+        console.error("Error adding item to wishlist:", error);
+        return res.status(500).send("Something went wrong.");
+    }
+}
+exports.getwishlist = async function (req, res) {
+
+    const userId = req.params.userId;
+    console.log("userId", userId)
+
+    try {
+        const wishlistItems = await wishlist.find( userId ); // assuming you have a 'user' field in your Wishlist model
+        console.log(wishlistItems);
+         if (!wishlistItems || wishlistItems.length === 0) {
+            return res.status(404).json({ message: 'no item  found on wishlist' });
+        }
+
+        // Array to store populated order items
+        const populatedwishlistItems = [];
+
+        // Loop through each order item to populate user and product details
+        for (const wishlistItem of wishlistItems) {
+            const user = await users.findById(wishlistItem.userId); 
+            console.log(user)// Fetch user details
+            const product = await products.find({ _id: { $in: wishlistItem.productId } }); // Fetch product details
+console.log(product)
+            if (user && product) {
+                // Construct a populated order item object
+                const populatedwishlistItem = {
+                    userId: user,
+                    products: product,
+                };
+                populatedwishlistItems.push(populatedwishlistItem);
+            }
+        }
+        console.log("item",populatedwishlistItems)
+        // Return populated order items in the response
+        return res.status(200).json(populatedwishlistItems);
+    } catch (error) {
+res.status(500).send("something went wrong")
+    }
+}
+
+exports.removeFromWishlist = async function (req, res) {
+    const { userId, productId } = req.body;
+
+    try {
+        // Check if the wishlist item exists
+        const existingWishlistItem = await wishlist.findOne({ userId: userId, productId: productId });
+
+        if (!existingWishlistItem) {
+            return res.status(404).send("Wishlist item not found.");
+        }
+
+        // If the wishlist item exists, remove it
+        const deleteItem = await wishlist.deleteOne({
+            userId: userId,
+            productId: productId
+        });
+
+        if (deleteItem.deletedCount === 1) {
+            return res.status(200).send("Item removed from wishlist.");
+        } else {
+            return res.status(500).send("Failed to remove item from wishlist.");
+        }
+    } catch (error) {
+        console.error("Error removing item from wishlist:", error);
+        return res.status(500).send("Something went wrong.");
+    }
+}
+
+exports.addorder = async function (req, res) {
+    try {
+        const { userId, productIds } = req.body;
+
+        // Create new order
+        await order.create({ userId, productId: productIds });
+
+        res.status(200).json({ message: 'Order placed successfully' });
+    } catch (error) {
+        console.error('Error placing order:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
+exports.removefromcart = async function (req, res) {
+    const { userId, productIds } = req.body;
+
+    try {
+        // Assuming userId is used to identify the user's cart
+        // Delete cart items with the provided productIds
+        await Cart.deleteMany({ userId: userId, productId: { $in: productIds } });
+
+        res.status(200).json({ message: 'Selected products deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting selected products:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
+
+exports.myorder = async function (req, res) {
+    const userId = req.query.userId;
+    try {
+        // Find all order items for the specified user
+        const orderItems = await order.find({ userId });
+        if (!orderItems || orderItems.length === 0) {
+            return res.status(404).json({ message: 'No orders found' });
+        }
+
+        // Array to store populated order items
+        const populatedOrderItems = [];
+
+        // Loop through each order item to populate user and product details
+        for (const orderItem of orderItems) {
+            const user = await users.findById(orderItem.userId); // Fetch user details
+            const product = await products.find({ _id: { $in: orderItem.productId } }); // Fetch product details
+
+            if (user && product) {
+                // Construct a populated order item object
+                const populatedOrderItem = {
+                    userId: user,
+                    products: product,
+                };
+                populatedOrderItems.push(populatedOrderItem);
+            }
+        }
+        // Return populated order items in the response
+        return res.status(200).json(populatedOrderItems);
+    } catch (error) {
+        console.error('Error fetching order items:', error);
         return res.status(500).json({ message: 'Something went wrong' });
     }
 }

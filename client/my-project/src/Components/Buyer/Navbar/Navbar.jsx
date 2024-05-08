@@ -2,23 +2,28 @@ import React from "react";
 import { Link } from "react-router-dom";
 function Navbar() {
     return (
-        <nav className="bg-yellow-100 py-2">
+        <nav className="bg-gray-600 py-2 border-b border-white-600">
             <div className="container mx-auto px-4 md:flex md:items-center md:justify-between">
                 {/* Logo */}
                 <div className="flex items-center justify-between">
-                    <div className="text-black text-lg font-bold">My App</div>
+                    <div className="text-white text-lg font-bold">My App</div>
 
 
                 </div>
 
                 {/* Navigation Links */}
-                <ul className="md:flex hidden space-x-4 text-black">
+                <ul className="md:flex hidden space-x-4 text-white">
 
                     <button><Link to="/" >Home</Link> </button>
 
                     <button><Link to="/signin" >Sign In</Link> </button>
 
                     <button><Link to="/mycart" > My Cart</Link> </button>
+
+                    <button><Link to="/myorders">My Order</Link> </button>
+                    
+                    <button><Link to="/mywishlist">My wishlist</Link> </button>
+
                 </ul>
 
                 {/* Search Input */}
