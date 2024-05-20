@@ -100,8 +100,7 @@ exports.signin = async function (req, res) {
 };
 
 exports.seller = async function (req, res) {
-    const { productName, price, tags, imageBase64, shippingMethod, sellerName, contactEmail } = req.body;
-
+    const { productName, price, tags, imageBase64, shippingMethod, sellerName, contactEmail, description, userId } = req.body;
     console.log(req.body)
     const Image = imageBase64.split(';base64,').pop();
     const binaryImage = Buffer.from(Image, 'base64');
@@ -129,7 +128,9 @@ exports.seller = async function (req, res) {
         imageFile: relativePath,
         shippingMethod,
         sellerName,
-        contactEmail
+        contactEmail,
+        description,
+        userId
     })
 
     if (new_product) {
@@ -155,28 +156,29 @@ exports.seller = async function (req, res) {
 exports.getuser = async function (req, res) {
 
     try {
-        // Fetch all products from the database
-        const allProducts = await products.find();
+        // Fetch products associated with the userId
+        const userProducts = await products.find();
 
-        if (allProducts && allProducts.length > 0) {
-            // Sending success response with fetched products
+
+        if (userProducts && userProducts.length > 0) {
+            // Sending success response with fetched user products
             const response = {
                 statusCode: 200,
                 message: "Success",
-                data: allProducts
+                data: userProducts
             };
             res.status(200).json(response);
         } else {
-            // Sending error response if no products found
+            // Sending error response if no products found for the user
             const response = {
                 statusCode: 404,
-                message: "No products found"
+                message: "No products found for the user"
             };
             res.status(404).send(response);
         }
     } catch (error) {
         // Handling database or server errors
-        console.error('Error fetching products:', error);
+        console.error('Error fetching user products:', error);
         const response = {
             statusCode: 500,
             message: "Internal Server Error"
@@ -187,10 +189,13 @@ exports.getuser = async function (req, res) {
 
 exports.getproducts = async function (req, res) {
 
+    const userId = req.query.userId;
+    console.log(userId)
 
     try {
         // Fetch all products from the database
-        const allProducts = await products.find();
+        // Assuming you're querying products based on userId
+        const allProducts = await products.find({ userId: userId });
 
         if (allProducts && allProducts.length > 0) {
             // Sending success response with fetched products
@@ -208,6 +213,7 @@ exports.getproducts = async function (req, res) {
             };
             res.status(404).send(response);
         }
+
     } catch (error) {
         // Handling database or server errors
         console.error('Error fetching products:', error);
@@ -294,9 +300,11 @@ exports.cartproducts = async function (req, res) {
     }
 }
 
+
+
 exports.reviews = async function (req, res) {
     const productId = req.params.productId;
-    const { userName, rating, comment } = req.body;
+    const { userId, rating, comment } = req.body; // Assuming userId is sent in the request body
 
     try {
         // Find the product by productId
@@ -306,8 +314,16 @@ exports.reviews = async function (req, res) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        // Add the new review to the product's reviews array
-        product.reviews.push({ userName, rating, comment });
+        // Find the user by userId to get userName
+        const user = await users.findById(userId);
+        console.log(user)
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Add the new review to the product's reviews array with userName
+        product.reviews.push({ userName: user.name, rating, comment });
 
         // Save the updated product document
         await product.save();
@@ -318,6 +334,7 @@ exports.reviews = async function (req, res) {
         res.status(500).json({ error: 'Failed to add review' });
     }
 }
+
 exports.addcart = async function (req, res) {
 
     const { userId, productId } = req.body;
@@ -392,7 +409,6 @@ exports.mycart = async function (req, res) {
 exports.wishlist = async function (req, res) {
     const { userId, productId } = req.body;
 
-    console.log(req.body)
     try {
         const existingwishlist = await wishlist.findOne({ userId: userId, productId: productId });
 
@@ -422,9 +438,8 @@ exports.getwishlist = async function (req, res) {
     console.log("userId", userId)
 
     try {
-        const wishlistItems = await wishlist.find( userId ); // assuming you have a 'user' field in your Wishlist model
-        console.log(wishlistItems);
-         if (!wishlistItems || wishlistItems.length === 0) {
+        const wishlistItems = await wishlist.find(userId); // assuming you have a 'user' field in your Wishlist model
+        if (!wishlistItems || wishlistItems.length === 0) {
             return res.status(404).json({ message: 'no item  found on wishlist' });
         }
 
@@ -433,10 +448,8 @@ exports.getwishlist = async function (req, res) {
 
         // Loop through each order item to populate user and product details
         for (const wishlistItem of wishlistItems) {
-            const user = await users.findById(wishlistItem.userId); 
-            console.log(user)// Fetch user details
+            const user = await users.findById(wishlistItem.userId);
             const product = await products.find({ _id: { $in: wishlistItem.productId } }); // Fetch product details
-console.log(product)
             if (user && product) {
                 // Construct a populated order item object
                 const populatedwishlistItem = {
@@ -446,11 +459,11 @@ console.log(product)
                 populatedwishlistItems.push(populatedwishlistItem);
             }
         }
-        console.log("item",populatedwishlistItems)
+        console.log("item", populatedwishlistItems)
         // Return populated order items in the response
         return res.status(200).json(populatedwishlistItems);
     } catch (error) {
-res.status(500).send("something went wrong")
+        res.status(500).send("something went wrong")
     }
 }
 
@@ -546,4 +559,87 @@ exports.myorder = async function (req, res) {
         console.error('Error fetching order items:', error);
         return res.status(500).json({ message: 'Something went wrong' });
     }
+}
+
+exports.deletecartProduct = async function (req, res) {
+    const { productIds } = req.body; // Destructure productId from request body
+
+    // Log the received productId for debugging
+    console.log(`Product ID to delete: ${productIds}`);
+
+
+    try {
+        // Finding the product in the cart by its productId
+        const products = await Cart.findOne({ productId: { $in: productIds } });
+
+
+
+        if (!products) {
+            return res.status(404).json({ message: "Product not found in the cart" });
+        } else {
+            // Deleting the product from the cart
+            await Cart.deleteOne({ productId: { $in: productIds } });
+            return res.status(200).json({ message: "Product deleted successfully from the cart" });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: 'Something went wrong' });
+    }
+}
+
+exports.deletewishlist = async function (req, res) {
+    const productId = req.body;
+    try {
+        const product = await wishlist.find(productId);
+
+        if (!product) {
+            console.log("no product found");
+            res.status(400).send("No product found in Wishlist");
+        } else {
+            await wishlist.deleteOne(productId);
+            res.status(200).send("Item removed from wishlist")
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: 'Something went wrong' });
+    }
+}
+
+exports.getsearch = async function (req, res) {
+    const keyword = req.query.keyword;
+    try {
+        if (keyword) {
+            filter = {
+                $or:[
+                    {"productName":{$regex:keyword,$options:"i"}}
+                ]
+            };
+        }
+    
+        const userProducts=await products.find(filter);
+        if (userProducts ) {
+            // Sending success response with fetched user products
+            const response = {
+                statusCode: 200,
+                message: "Success",
+                data: userProducts
+            };
+            res.status(200).json(response);
+        }else{
+            const response = {
+                statusCode: 404,
+                message: "No products found for the user"
+            };
+            res.status(404).send(response);
+        } 
+    } catch (error) {
+        
+        console.error('Error fetching user products:', error);
+        const response = {
+            statusCode: 500,
+            message: "Internal Server Error"
+        };
+        res.status(500).send(response);    }
+
+    
 }

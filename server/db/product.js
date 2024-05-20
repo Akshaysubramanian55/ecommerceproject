@@ -1,18 +1,20 @@
 const mongoose=require("mongoose");
 
 const product=new mongoose.Schema({
-    productName:"string",
-    price:"string",
-    tags:"string",
-    imageFile:"string",
-    shippingMethod:"string",
-    sellerName:"string",
-    contactEmail:"string",
+    productName: { type:"String", required: true },
+    price: { type: "String", required: true },
+    tags: { type: "String", required: true },
+    imageFile: { type: "String", required: true },
+    shippingMethod: { type: "String", required: true },
+    sellerName: { type: "String", required: true },
+    contactEmail: { type: "String" , required: true},
+    description: { type: "String", required: true },
+    userId:{type:"string", required: true},
 
     reviews: [{
-        userName: String,
-        rating: Number,
-        comment: String,
+        userName: "String",
+        rating: { type: Number, required: true },
+        comment: { type: String, required: true },
         date: { type: Date, default: Date.now }
     }]
 })

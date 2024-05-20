@@ -99,7 +99,7 @@ function EditProduct() {
                                         className="w-full px-4 py-2 border rounded-md mb-4 focus:outline-none focus:border-blue-500"
                                     />
                                 ) : (
-                                    `$${product.price}`
+                                    `Rs${product.price}`
                                 )}
                             </p>
                             <p className="text-gray-600 mb-2">

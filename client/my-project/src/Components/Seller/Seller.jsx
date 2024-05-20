@@ -10,10 +10,22 @@ function Seller() {
     const [imageBase64, setImageBase64] = useState(""); // State to hold base64 string
     const [shippingMethod, setShippingMethod] = useState("");
     const [sellerName, setSellerName] = useState("");
+    const [description,setDescription]=useState("");
     const [contactEmail, setContactEmail] = useState("");
     const navigate = useNavigate();
 
 
+    const accessToken = localStorage.getItem("token");
+    if (!accessToken) {
+        console.error("Access token not found in localStorage");
+        return;
+    }
+
+    // Decode the access token to extract userId
+    const payloadBase64 = accessToken.split('.')[1];
+    const decodedPayload = atob(payloadBase64);
+    const decodedToken = JSON.parse(decodedPayload);
+    const userId = decodedToken.user_id;
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -41,7 +53,9 @@ function Seller() {
                 imageBase64,
                 shippingMethod,
                 sellerName,
-                contactEmail
+                description,
+                contactEmail,
+                userId
             });
 
             if (response.data) {
@@ -132,6 +146,13 @@ function Seller() {
                         className="w-full px-4 py-2 border rounded-md mb-6 focus:outline-none focus:border-blue-500"
                         value={contactEmail}
                         onChange={(e) => setContactEmail(e.target.value)}
+                    />
+                     <input
+                        type="text"
+                        placeholder="enter description"
+                        className="w-full px-4 py-2 border rounded-md mb-4 focus:outline-none focus:border-blue-500"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                     />
                     <button
                         type="submit"

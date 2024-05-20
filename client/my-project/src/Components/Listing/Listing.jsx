@@ -3,6 +3,7 @@ import axios from 'axios';
 import Navbar from "./Navbar/Navbar";
 import { Link } from "react-router-dom";
 import Footer from "../Footer/Footer";
+
 function GetProduct() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -21,7 +22,19 @@ function GetProduct() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:3100/getproduct');
+                const token = localStorage.getItem('token');
+                const payloadBase64 = token.split('.')[1];
+                const decodedPayload = atob(payloadBase64);
+                const decodedToken = JSON.parse(decodedPayload);
+                const userId = decodedToken.user_id; // Extracting userId from decoded token
+                console.log(userId);
+
+                const response = await axios.get('http://localhost:3100/getproduct', {
+                    params: {
+                        userId: userId // Sending userId as a query parameter
+                    }
+                });
+
                 setProducts(response.data.data); // Assuming response.data.data contains products array
                 setLoading(false);
             } catch (error) {
@@ -61,7 +74,7 @@ function GetProduct() {
                                 )}
                                 <div className="p-4">
                                     <h3 className="text-xl font-semibold mb-2 text-gray-800">{product.productName}</h3>
-                                    <p className="text-gray-600 mb-2">Price: <span className="text-green-600 font-semibold">${product.price}</span></p>
+                                    <p className="text-gray-600 mb-2">Price: <span className="text-green-600 font-semibold">Rs.{product.price}</span></p>
                                     {/* Render other product details here */}
                                     <div className="flex flex-wrap mb-2">
                                         {product.tags.split(',').map((tag) => (
@@ -72,23 +85,26 @@ function GetProduct() {
                                     <p className="text-gray-600 mb-2">Seller: <span className="text-yellow-600 font-semibold">{product.sellerName}</span></p>
                                     <p className="text-gray-600 mb-2">Contact Email: <a href={`mailto:${product.contactEmail}`} className="text-blue-600 hover:underline">{product.contactEmail}</a></p>
                                 </div>
-                             <Link to={`/getproduct/${product._id}`}> <button
-                                    className="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
-                                    onClick={() => handleViewUser(product._id)}
-                                >
-                                    View Details
-                                </button></Link>  
+                                <Link to={`/getproduct/${product._id}`}>
+                                    <button
+                                        className="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+                                        onClick={() => handleViewUser(product._id)}
+                                    >
+                                        View Details
+                                    </button>
+                                </Link>
                             </div>
                         ))
                     )}
                 </div>
             )}
-            <Footer/>
+            <Footer />
         </div>
     );
 }
 
 export default GetProduct;
+
 
 
 

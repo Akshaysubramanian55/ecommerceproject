@@ -3,10 +3,8 @@ import axios from "axios";
 import Swal from 'sweetalert2'; // Import SweetAlert2
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 
-// Define fetchCartItems function outside the component
 const fetchCartItems = async () => {
   try {
-    // Retrieve access token from localStorage
     const accessToken = localStorage.getItem("token");
 
     if (!accessToken) {
@@ -14,23 +12,19 @@ const fetchCartItems = async () => {
       return;
     }
 
-    // Decode the access token to extract userId
     const payloadBase64 = accessToken.split('.')[1];
     const decodedPayload = atob(payloadBase64);
     const decodedToken = JSON.parse(decodedPayload);
     const userId = decodedToken.user_id;
 
-    // Fetch cart items from backend using userId as a query parameter
     const response = await axios.get('http://localhost:3100/mycart', {
       params: { userId: userId }
     });
 
-    console.log("Response from fetchCartItems:", response.data);
-
     return response.data;
   } catch (error) {
     console.error("Error fetching cart items:", error);
-    throw error; // Rethrow error to handle it in the component
+    throw error;
   }
 };
 
@@ -43,23 +37,18 @@ function MyCartObjects() {
     fetchCartItems()
       .then(data => setCartItems(data))
       .catch(error => console.error(error));
-  }, []); // Empty dependency array to run the effect only once on component mount
+  }, []);
 
-  // Function to handle checkbox change
   const handleCheckboxChange = (event, productId) => {
     if (event.target.checked) {
-      // If checkbox is checked, add the product ID to selectedProducts
       setSelectedProducts([...selectedProducts, productId]);
     } else {
-      // If checkbox is unchecked, remove the product ID from selectedProducts
       setSelectedProducts(selectedProducts.filter(id => id !== productId));
     }
   };
 
-  // Function to handle purchase button click
   const handlePurchase = async () => {
     try {
-      // Retrieve access token from localStorage
       const accessToken = localStorage.getItem("token");
 
       if (!accessToken) {
@@ -67,36 +56,29 @@ function MyCartObjects() {
         return;
       }
 
-      // Decode the access token to extract userId
       const payloadBase64 = accessToken.split('.')[1];
       const decodedPayload = atob(payloadBase64);
       const decodedToken = JSON.parse(decodedPayload);
       const userId = decodedToken.user_id;
 
-      // Send a request to move the selected products from cart to order collection
       await axios.post('http://localhost:3100/order/add', {
         userId: userId,
         productIds: selectedProducts
       });
 
-      // Send a request to delete the selected products from the cart
       await axios.delete('http://localhost:3100/mycart/delete', {
         data: { userId: userId, productIds: selectedProducts }
       });
 
-      // Show SweetAlert notification after purchase
       Swal.fire({
         icon: 'success',
         title: 'Purchase Successful',
         text: 'Your item has been shipped and will be delivered within 2 to 3 working days.',
       }).then((result) => {
-        // Check if the alert was confirmed
         if (result.isConfirmed) {
-          // Clear the selected products state and reset total price
           setSelectedProducts([]);
           setTotalPrice(0);
 
-          // Fetch updated cart items
           fetchCartItems()
             .then(data => setCartItems(data))
             .catch(error => console.error(error));
@@ -107,7 +89,26 @@ function MyCartObjects() {
     }
   };
 
-  // Function to calculate total price based on selected products
+  const handleDeleteProduct = async () => {
+    try {
+      await axios.delete('http://localhost:3100/cartproduct/delete', {
+        data: { productIds: selectedProducts }
+      });
+  
+      // Remove the deleted items from the cartItems state
+      setCartItems(prevCartItems => prevCartItems.filter(cartItem => !selectedProducts.includes(cartItem.productId._id)));
+  
+      Swal.fire({
+        icon: 'success',
+        title: 'Product Deleted',
+        text: 'The selected product has been removed from your cart.',
+      });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+  
+
   useEffect(() => {
     let totalPrice = 0;
     for (const cartItem of cartItems) {
@@ -132,7 +133,7 @@ function MyCartObjects() {
             <div className="p-4">
               <h3 className="text-xl font-bold text-indigo-700">{cartItem.productId.productName}</h3>
               <p className="text-lg text-gray-800 my-2">
-                <strong>Price:</strong> <span className="text-green-600">${parseFloat(cartItem.productId.price).toFixed(2)}</span>
+                <strong>Price:</strong> <span className="text-green-600">Rs.{parseFloat(cartItem.productId.price).toFixed(2)}</span>
               </p>
               <p className="text-lg text-gray-800 my-2">
                 <input
@@ -146,14 +147,19 @@ function MyCartObjects() {
         ))}
       </div>
       <div className="text-center mt-8">
-        <h2 className="text-2xl font-bold text-indigo-700">Total Price: ${totalPrice.toFixed(2)}</h2>
+       
+        <h2 className="text-2xl font-bold text-indigo-700">Total Price: Rs{totalPrice.toFixed(2)}</h2>
         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-4" onClick={handlePurchase}>Purchase</button>
+        <span> <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={ handleDeleteProduct}>Delete Selected</button></span>
       </div>
     </div>
   );
+  
 }
 
 export default MyCartObjects;
+
+
 
 
 

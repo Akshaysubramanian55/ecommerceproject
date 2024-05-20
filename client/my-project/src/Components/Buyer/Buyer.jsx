@@ -2,20 +2,28 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as farHeart, faHeart as fasHeart } from "@fortawesome/free-regular-svg-icons";
+import axios from 'axios';
 import Navbar from "./Navbar/Navbar";
 import ImageCarousel from "./Courasel/Courasel";
-import axios from 'axios';
 import Footer from "../Footer/Footer";
 import Faq from "../faq/Faq";
+import ReactStars from "react-stars";
 
 function Buyer() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [favorites, setFavorites] = useState([]);
+    const [keyword, setKeyword] = useState("");
 
     useEffect(() => {
         const fetchProducts = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error("Authentication token not found. Please log in.");
+                return;
+            }
+
             try {
                 const response = await axios.get('http://localhost:3100/getuser');
                 setProducts(response.data.data);
@@ -27,14 +35,35 @@ function Buyer() {
             }
         };
 
-        fetchProducts();
-    }, []);
+        const fetchFilteredProducts = async () => {
+            try {
+                const response = await axios.get('http://localhost:3100/filterproducts', {
+                    params: { keyword: keyword }
+                });
+                console.log(response)
+
+                setProducts(response.data.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching filtered products:", error);
+                setError('Error fetching products. Please try again later.');
+                setLoading(false);
+            }
+        };
+
+        if (keyword) {
+            setLoading(true);
+            setError(null);
+            fetchFilteredProducts();
+        } else {
+            fetchProducts();
+        }
+    }, [keyword]);
 
     const handleFavoriteAction = async (productId) => {
         const token = localStorage.getItem('token');
         if (!token) {
             console.error("Authentication token not found. Please log in.");
-            // Handle authentication error (redirect to login page, display message, etc.)
             return;
         }
 
@@ -45,11 +74,9 @@ function Buyer() {
 
         try {
             if (favorites.includes(productId)) {
-                // Remove from favorites
                 await axios.delete('http://localhost:3100/wishlist/remove', { data: { userId, productId } });
                 setFavorites(favorites.filter(id => id !== productId));
             } else {
-                // Add to favorites
                 setFavorites([...favorites, productId]);
                 await axios.post('http://localhost:3100/wishlist/add', { userId, productId });
             }
@@ -58,16 +85,18 @@ function Buyer() {
         }
     };
 
+    const calculateAverageRating = (reviews) => {
+        if (reviews.length === 0) return 0;
+        const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+        return total / reviews.length;
+    };
+
     return (
         <div className="min-h-screen">
-            {/* Navbar */}
-            <Navbar />
+            <Navbar setKeyword={setKeyword} />
 
-            {/* Image Carousel with Margin */}
             <div className="container mx-auto px-4 py-8">
                 <h1 className="text-3xl font-bold mb-8 text-white">Featured Products</h1>
-
-                {/* Add margin to the ImageCarousel */}
                 <div className="mb-8">
                     <ImageCarousel />
                 </div>
@@ -84,7 +113,7 @@ function Buyer() {
                                     <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-white transition duration-300 ease-in-out transform hover:scale-105">
                                         {product.imageFile && (
                                             <img
-                                                src={`http://localhost:3100${product.imageFile}`} // Construct image URL
+                                                src={`http://localhost:3100${product.imageFile}`}
                                                 alt={product.productName}
                                                 className="w-full h-64 object-contain rounded-lg shadow-md"
                                                 style={{ objectFit: 'contain' }}
@@ -92,9 +121,18 @@ function Buyer() {
                                         )}
                                         <div className="p-6">
                                             <h3 className="text-xl font-semibold mb-2 text-yellow-700">{product.productName}</h3>
-                                            <p className="text-yellow-600 mb-2">Price: <span className="text-green-600 font-semibold">${product.price}</span></p>
+                                            <p className="text-yellow-600 mb-2">Price: <span className="text-green-600 font-semibold">Rs.{product.price}</span></p>
 
-                                            {/* Tags Section */}
+                                            <div className="mb-2">
+                                                <ReactStars
+                                                    count={5}
+                                                    value={calculateAverageRating(product.reviews)}
+                                                    size={24}
+                                                    edit={false}
+                                                    color2={'#ffd700'}
+                                                />
+                                            </div>
+
                                             <div className="flex flex-wrap mb-2">
                                                 {product.tags.split(',').map((tag) => (
                                                     <span key={tag} className="text-blue-600 bg-blue-100 px-2 py-1 rounded-md mr-2 mb-2">{tag.trim()}</span>
@@ -105,7 +143,6 @@ function Buyer() {
                                         </div>
                                     </div>
                                 </Link>
-                                {/* Love symbol */}
                                 <button
                                     className="absolute top-2 right-2"
                                     onClick={() => handleFavoriteAction(product._id)}
@@ -124,3 +161,5 @@ function Buyer() {
 }
 
 export default Buyer;
+
+

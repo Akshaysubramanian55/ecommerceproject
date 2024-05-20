@@ -20,4 +20,7 @@ router.delete('/wishlist/remove',Usercontroller.removeFromWishlist);
 router.post('/order/add',Usercontroller.addorder);
 router.delete('/mycart/delete',Usercontroller.removefromcart);
 router.get('/order/item',Usercontroller.myorder);
+router.delete('/cartproduct/delete',Usercontroller.deletecartProduct);
+router.delete('/wishlist/delete',Usercontroller.deletewishlist);
+router.get('/filterproducts',Usercontroller.getsearch);
 module.exports=router;
