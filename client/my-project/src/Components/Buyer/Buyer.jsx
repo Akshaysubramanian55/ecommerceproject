@@ -40,7 +40,6 @@ function Buyer() {
                 const response = await axios.get('http://localhost:3100/filterproducts', {
                     params: { keyword: keyword }
                 });
-                console.log(response)
 
                 setProducts(response.data.data);
                 setLoading(false);
@@ -91,12 +90,33 @@ function Buyer() {
         return total / reviews.length;
     };
 
+    const handleCategorySelect = async (category) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const encodedCategory = encodeURIComponent(category);
+            const response = await axios.get('http://localhost:3100/filter/categories', {
+                params: { category: encodedCategory }
+            });
+            setProducts(response.data.data);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error fetching filtered products:", error);
+            setError('Error fetching products. Please try again later.');
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen">
-            <Navbar setKeyword={setKeyword} />
+            <Navbar setKeyword={setKeyword} onCategorySelect={handleCategorySelect} />
 
             <div className="container mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold mb-8 text-white">Featured Products</h1>
+                <div>
+                <h1 className="text-3xl font-bold mb-8 text-gray-700">Featured Products</h1>
+
+                </div>
                 <div className="mb-8">
                     <ImageCarousel />
                 </div>
@@ -161,5 +181,4 @@ function Buyer() {
 }
 
 export default Buyer;
-
 

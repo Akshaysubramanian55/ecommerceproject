@@ -32,7 +32,7 @@ function Navbar({ handleClick }) {
                     <li className="text-white">
                         <button
                             onClick={() => handleClick(true)}
-                            className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            className="mt-4 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 hover:bg-gradient-to-l text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                         >
                             View Product
                         </button>
@@ -40,7 +40,7 @@ function Navbar({ handleClick }) {
                     <li>
                         <Link to="/seller">
                             <button
-                                className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                className="mt-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:bg-gradient-to-l text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                             >
                                 Add Product
                             </button>
@@ -53,4 +53,3 @@ function Navbar({ handleClick }) {
 }
 
 export default Navbar;
-

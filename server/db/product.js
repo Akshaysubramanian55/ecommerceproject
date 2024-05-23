@@ -16,6 +16,8 @@ const product=new mongoose.Schema({
         rating: { type: Number, required: true },
         comment: { type: String, required: true },
         date: { type: Date, default: Date.now }
-    }]
+    }],
+    categories:{type:"string", required: true},
+
 })
 module.exports=mongoose.model("product",product);

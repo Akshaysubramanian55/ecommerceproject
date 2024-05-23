@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import filter from './images/filter.png';
 
-function Navbar({ setKeyword }) {
+function Navbar({ setKeyword, onCategorySelect }) {
+    const [showDropdown, setShowDropdown] = useState(false);
+
     const handleSearch = (e) => {
         const searchKeyword = e.target.value;
         setKeyword(searchKeyword); // Update the keyword state with the new search keyword
+    };
+
+    const handleFilterClick = (category) => {
+        setShowDropdown(false); // Close dropdown when a category is clicked
+        onCategorySelect(category); // Pass selected category to the parent component
     };
 
     return (
@@ -15,20 +23,34 @@ function Navbar({ setKeyword }) {
                 </div>
 
                 <ul className="md:flex hidden space-x-4 text-white">
-                    <li><Link to="/" >Home</Link></li>
-                    <li><Link to="/signin" >Sign In</Link></li>
-                    <li><Link to="/mycart" > My Cart</Link></li>
+                    <li><Link to="/">Home</Link></li>
+                    <li><Link to="/signin">Sign In</Link></li>
+                    <li><Link to="/mycart">My Cart</Link></li>
                     <li><Link to="/myorders">My Orders</Link></li>
                     <li><Link to="/mywishlist">My Wishlist</Link></li>
                 </ul>
-
-                <div className="md:flex items-center mt-2 md:mt-0">
-                    <input
-                        type="search"
-                        placeholder="Search for Products"
-                        className="bg-white text-gray-800 px-3 py-1 rounded-lg focus:outline-none w-full md:w-auto"
-                        onChange={handleSearch}
-                    />
+                 
+                <div className="md:flex items-center mt-2 md:mt-0 relative">
+                    <div className="flex items-center">
+                        <img src={filter} alt="Filter" className="w-6 h-6 mr-2 cursor-pointer" onClick={() => setShowDropdown(!showDropdown)} />
+                        <input
+                            type="search"
+                            placeholder="Search for Products"
+                            className="bg-white text-gray-800 px-3 py-1 rounded-lg focus:outline-none w-full md:w-auto"
+                            onChange={handleSearch}
+                        />
+                    </div>
+                    {showDropdown && (
+                        <div className="absolute left-0 mt-2 bg-black text-white border border-gray-300 rounded-lg shadow-lg" style={{ top: '100%', zIndex: 10 }}>
+                            {/* Dropdown content */}
+                            <ul className="py-4">
+                                <li className="px-4 py-2  cursor-pointer" onClick={() => handleFilterClick('Electronics')}>Electronics</li>
+                                <li className="px-4 py-2 cursor-pointer" onClick={() => handleFilterClick('MensFashion')}>Men's Fashion</li>
+                                <li className="px-4 py-2 cursor-pointer" onClick={() => handleFilterClick('Bags')}>Bags</li>
+                                <li className="px-4 py-2  cursor-pointer" onClick={() => handleFilterClick('Footwear')}>Footwear</li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -41,6 +63,10 @@ function Navbar({ setKeyword }) {
 }
 
 export default Navbar;
+
+
+
+
 
 
 

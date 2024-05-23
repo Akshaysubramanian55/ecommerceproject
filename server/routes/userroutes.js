@@ -23,4 +23,5 @@ router.get('/order/item',Usercontroller.myorder);
 router.delete('/cartproduct/delete',Usercontroller.deletecartProduct);
 router.delete('/wishlist/delete',Usercontroller.deletewishlist);
 router.get('/filterproducts',Usercontroller.getsearch);
+router.get('/filter/categories',Usercontroller.getfilter)
 module.exports=router;

@@ -100,7 +100,7 @@ exports.signin = async function (req, res) {
 };
 
 exports.seller = async function (req, res) {
-    const { productName, price, tags, imageBase64, shippingMethod, sellerName, contactEmail, description, userId } = req.body;
+    const { productName, price, tags, imageBase64, shippingMethod, sellerName, contactEmail, description, userId,categories } = req.body;
     console.log(req.body)
     const Image = imageBase64.split(';base64,').pop();
     const binaryImage = Buffer.from(Image, 'base64');
@@ -130,7 +130,8 @@ exports.seller = async function (req, res) {
         sellerName,
         contactEmail,
         description,
-        userId
+        userId,
+        categories
     })
 
     if (new_product) {
@@ -642,4 +643,41 @@ exports.getsearch = async function (req, res) {
         res.status(500).send(response);    }
 
     
+}
+
+exports.getfilter = async function(req, res) {
+    const {  category } = req.query; // Extract the keyword from req.body
+    console.log(category)
+    try {
+        let filter = {};
+        if (category) {
+            // Assuming 'categories' is the field in your Product schema
+            filter = { categories: { $regex: category, $options: "i" } };
+        }
+    console.log(filter)
+        const userProducts = await products.find(filter);
+                 console.log(userProducts)
+        if (userProducts.length > 0) {
+            // Sending success response with fetched user products
+            const response = {
+                statusCode: 200,
+                message: "Success",
+                data: userProducts
+            };
+            res.status(200).json(response);
+        } else {
+            const response = {
+                statusCode: 404,
+                message: "No products found for the user"
+            };
+            res.status(404).json(response);
+        } 
+    } catch (error) {
+        console.error('Error fetching user products:', error);
+        const response = {
+            statusCode: 500,
+            message: "Internal Server Error"
+        };
+        res.status(500).json(response);
+    }
 }

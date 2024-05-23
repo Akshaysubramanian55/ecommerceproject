@@ -12,6 +12,7 @@ function Seller() {
     const [sellerName, setSellerName] = useState("");
     const [description,setDescription]=useState("");
     const [contactEmail, setContactEmail] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
     const navigate = useNavigate();
 
 
@@ -55,7 +56,8 @@ function Seller() {
                 sellerName,
                 description,
                 contactEmail,
-                userId
+                userId,
+                categories: selectedCategory,
             });
 
             if (response.data) {
@@ -82,7 +84,7 @@ function Seller() {
             setShippingMethod("");
             setSellerName("");
             setContactEmail("");
-
+            setSelectedCategory("");
         } catch (error) {
             console.error("Error adding item:", error);
             Swal.fire({
@@ -154,6 +156,18 @@ function Seller() {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                     />
+                     <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-md mb-4 focus:outline-none focus:border-blue-500"
+                    >
+                        <option value="">Select Category</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="footwear">Footwear</option>
+                        <option value="mensfashion">Men's Fashion</option>
+                        <option value="bags">Bags</option>
+                    </select>
+
                     <button
                         type="submit"
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
