@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as farHeart, faHeart as fasHeart } from "@fortawesome/free-regular-svg-icons";
+import { faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
+import { faHeart as fasHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from 'axios';
 import Navbar from "./Navbar/Navbar";
 import ImageCarousel from "./Courasel/Courasel";
@@ -18,12 +19,6 @@ function Buyer() {
 
     useEffect(() => {
         const fetchProducts = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                console.error("Authentication token not found. Please log in.");
-                return;
-            }
-
             try {
                 const response = await axios.get('http://localhost:3100/getuser');
                 setProducts(response.data.data);
@@ -38,7 +33,7 @@ function Buyer() {
         const fetchFilteredProducts = async () => {
             try {
                 const response = await axios.get('http://localhost:3100/filterproducts', {
-                    params: { keyword: keyword }
+                    params: { keyword }
                 });
 
                 setProducts(response.data.data);
@@ -59,12 +54,15 @@ function Buyer() {
         }
     }, [keyword]);
 
+    useEffect(() => {
+        // Load wishlist items from localStorage
+        const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+        setFavorites(wishlistItems);
+    }, []);
+
     const handleFavoriteAction = async (productId) => {
         const token = localStorage.getItem('token');
-        if (!token) {
-            console.error("Authentication token not found. Please log in.");
-            return;
-        }
+        if (!token) return;
 
         const payloadBase64 = token.split('.')[1];
         const decodedPayload = atob(payloadBase64);
@@ -75,9 +73,15 @@ function Buyer() {
             if (favorites.includes(productId)) {
                 await axios.delete('http://localhost:3100/wishlist/remove', { data: { userId, productId } });
                 setFavorites(favorites.filter(id => id !== productId));
+                // Remove productId from wishlistItems in localStorage
+                const updatedWishlist = favorites.filter(id => id !== productId);
+                localStorage.setItem('wishlistItems', JSON.stringify(updatedWishlist));
             } else {
                 setFavorites([...favorites, productId]);
                 await axios.post('http://localhost:3100/wishlist/add', { userId, productId });
+                // Add productId to wishlistItems in localStorage
+                const updatedWishlist = [...favorites, productId];
+                localStorage.setItem('wishlistItems', JSON.stringify(updatedWishlist));
             }
         } catch (error) {
             console.error('Error handling favorite:', error);
@@ -107,15 +111,13 @@ function Buyer() {
             setLoading(false);
         }
     };
-
     return (
         <div className="min-h-screen">
             <Navbar setKeyword={setKeyword} onCategorySelect={handleCategorySelect} />
 
             <div className="container mx-auto px-4 py-8">
                 <div>
-                <h1 className="text-3xl font-bold mb-8 text-gray-700">Featured Products</h1>
-
+                    <h1 className="text-3xl font-bold mb-8 text-gray-700">Featured Products</h1>
                 </div>
                 <div className="mb-8">
                     <ImageCarousel />
@@ -181,4 +183,5 @@ function Buyer() {
 }
 
 export default Buyer;
+
 

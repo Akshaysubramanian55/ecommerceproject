@@ -15,8 +15,7 @@ router.post('/:productId',Usercontroller.reviews);
 router.post('/cart/add',Usercontroller.addcart);
 router.get('/mycart',Usercontroller.mycart);
 router.post('/wishlist/add',Usercontroller.wishlist);
-router.get('/wishlist/item',Usercontroller.getwishlist);
-router.delete('/wishlist/remove',Usercontroller.removeFromWishlist);
+router.get('/wishlist/getitems',Usercontroller.getWishlist);
 router.post('/order/add',Usercontroller.addorder);
 router.delete('/mycart/delete',Usercontroller.removefromcart);
 router.get('/order/item',Usercontroller.myorder);
@@ -24,4 +23,5 @@ router.delete('/cartproduct/delete',Usercontroller.deletecartProduct);
 router.delete('/wishlist/delete',Usercontroller.deletewishlist);
 router.get('/filterproducts',Usercontroller.getsearch);
 router.get('/filter/categories',Usercontroller.getfilter)
+router.delete('/wishlist/remove',Usercontroller.removewishlist);
 module.exports=router;

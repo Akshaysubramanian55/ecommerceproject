@@ -1,6 +1,5 @@
 const dotenv = require('dotenv');
 dotenv.config();
-
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -13,7 +12,7 @@ const userRoutes = require('./routes/userroutes');
 app.use(cors()); // Enable CORS
 app.use(express.json());
 
-// Routes
+
 app.use(userRoutes); // Mount user routes
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/getproduct', userRoutes);

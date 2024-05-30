@@ -17,9 +17,14 @@ function Signin() {
                 password: password,
             });
 
-            if (response.data && response.data.token) {
-                const { token, role } = response.data;
+            if (response.data && response.data.token&&response.data.cart) {
+
+                console.log(response.data)
+                const { token, role,cart,wishlist } = response.data;
                 localStorage.setItem('token', token);
+                localStorage.setItem('cartItems', JSON.stringify(cart));
+                localStorage.setItem('wishlistItems', JSON.stringify(wishlist));
+
 
                 Swal.fire({
                     icon: 'success',

@@ -1,7 +1,15 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Navbar({ handleClick }) {
+const navigate=useNavigate();
+
+    const handleLogout = () => {
+        // Remove token from local storage
+        localStorage.removeItem('token');
+        navigate('/')
+    };
+
     return (
         <nav className="bg-gray-800 p-4">
             <div className="container mx-auto flex justify-between items-center">
@@ -46,6 +54,14 @@ function Navbar({ handleClick }) {
                             </button>
                         </Link>
                     </li>
+                    <li>
+                        <button
+                            onClick={handleLogout}
+                            className="mt-4 bg-gradient-to-r from-red-400 via-pink-500 to-purple-600 hover:bg-gradient-to-l text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        >
+                            Logout
+                        </button>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -53,3 +69,4 @@ function Navbar({ handleClick }) {
 }
 
 export default Navbar;
+

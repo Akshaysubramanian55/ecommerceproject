@@ -8,10 +8,15 @@ const orderSchema = new Schema({
         required: true
     }],
     userId: {
-        type: "string", // Assuming userId is of type string
+        type: String, // Corrected type to String
         ref: 'user',
         required: true
-    }
+    },
+    quantities: [{
+        type: Number,
+        required: true
+    }]
 });
 
 module.exports = mongoose.model('order', orderSchema);
+

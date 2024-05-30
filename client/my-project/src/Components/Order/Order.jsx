@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 function Order() {
     const [orderItems, setOrderItems] = useState([]);
     const accessToken = localStorage.getItem("token");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchOrderItems = async () => {
             try {
                 if (!accessToken) {
-                    console.error("Access token not found in localStorage");
-                    return;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: "Please login to access this feature",
+                    }).then(() => {
+                        navigate('/signin');
+                    });
+                } else {
+                    // Decode the access token to extract userId
+                    const payloadBase64 = accessToken.split('.')[1];
+                    const decodedPayload = atob(payloadBase64);
+                    const decodedToken = JSON.parse(decodedPayload);
+                    const userId = decodedToken.user_id;
+
+                    // Make the request with userId included in the request body
+                    const response = await axios.get('http://localhost:3100/order/item', {
+                        params: { userId: userId }
+                    });
+
+                    console.log("Response from fetchOrderItems:", response.data);
+
+                    setOrderItems(response.data); // Update state with the received order items
                 }
-
-                // Decode the access token to extract userId
-                const payloadBase64 = accessToken.split('.')[1];
-                const decodedPayload = atob(payloadBase64);
-                const decodedToken = JSON.parse(decodedPayload);
-                const userId = decodedToken.user_id;
-
-                // Make the request with userId included in the request body
-                const response = await axios.get('http://localhost:3100/order/item', {
-                    params: { userId: userId }
-                });
-
-                console.log("Response from fetchOrderItems:", response.data);
-
-                setOrderItems(response.data); // Update state with the received order items
             } catch (error) {
                 console.error("Error fetching order items:", error);
             }
@@ -51,16 +59,16 @@ function Order() {
                                     <img src={`http://localhost:3100${product.imageFile}`} alt={product.name} className="w-full h-64 object-contain" />
                                     <div className="p-4">
                                         <p className="font-semibold">{product.name}</p>
-                                        <p className="text-gray-700">${product.price}</p>
-                                    </div>
-                                    {/* Render total price at the bottom of the last product */}
-                                    {productIndex === order.products.length - 1 && (
-                                        <div className="p-4 bg-gray-200">
-                                            <p className="font-semibold">Total Price: ${calculateTotalPrice(order.products).toFixed(2)}</p>
+                                        <p className="text-blue-700">Price: Rs.{product.price}</p>
+                                        <div className="text-blue-700">
+                                            Quantity: {order.quantities[productIndex]}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             ))}
+                        </div>
+                        <div className="p-4 bg-gray-200">
+                            <p className="font-semibold">Total Price: RS.{calculateTotalPrice(order.products, order.quantities).toFixed(2)}</p>
                         </div>
                     </div>
                 </div>
@@ -70,11 +78,16 @@ function Order() {
 }
 
 // Function to calculate total price of all products
-const calculateTotalPrice = (products) => {
-    return products.reduce((total, product) => total + parseFloat(product.price), 0);
+const calculateTotalPrice = (products, quantities) => {
+    return products.reduce((total, product, index) => {
+        const quantity = quantities[index];
+        return total + (product.price * quantity);
+    }, 0);
 }
 
 export default Order;
+
+
 
 
 

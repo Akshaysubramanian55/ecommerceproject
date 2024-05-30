@@ -41,6 +41,10 @@ function CartProduct() {
             const decodedToken = JSON.parse(decodedPayload);
             setUserId(decodedToken.user_id);
         }
+
+        // Check if product is already added to cart
+        const storedCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        setIsAddedToCart(storedCartItems.includes(productId));
     }, [productId, reviewSubmitted]);
 
     const handleInputChange = (e) => {
@@ -99,8 +103,16 @@ function CartProduct() {
             const decodedToken = JSON.parse(decodedPayload);
             const userId = decodedToken.user_id;
 
-            await axios.post(`http://localhost:3100/cart/add`, { userId, productId });
-            setIsAddedToCart(true);
+            const payload = { userId, productId };
+            console.log("Payload being sent to the server:", payload); // Add this line for debugging
+
+            await axios.post(`http://localhost:3100/cart/add`, payload);
+            
+            // Update local storage with updated cart items
+            const storedCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            localStorage.setItem('cartItems', JSON.stringify([...storedCartItems, productId]));
+
+            setIsAddedToCart(true); // Set to true after successful addition to cart
         } catch (error) {
             console.error("Error adding to cart:", error);
         }
@@ -217,6 +229,9 @@ function CartProduct() {
 }
 
 export default CartProduct;
+
+
+
 
 
 
