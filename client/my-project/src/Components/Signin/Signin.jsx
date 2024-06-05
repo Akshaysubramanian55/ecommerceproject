@@ -22,6 +22,7 @@ function Signin() {
                 console.log(response.data)
                 const { token, role,cart,wishlist } = response.data;
                 localStorage.setItem('token', token);
+                localStorage.setItem('email',email)
                 localStorage.setItem('cartItems', JSON.stringify(cart));
                 localStorage.setItem('wishlistItems', JSON.stringify(wishlist));
 
@@ -34,7 +35,7 @@ function Signin() {
 
                 // Redirect based on role after successful sign-in
                 if (role === 'seller') {
-                    navigate('/getproducts');
+                    navigate('/sellerlogin');
                 } else if (role === 'buyer') {
                     navigate('/');
                 }

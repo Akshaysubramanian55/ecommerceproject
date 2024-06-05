@@ -14,21 +14,21 @@ function Mywishlist() {
                 if (!accessToken) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'error',
-                        text: "please login to access this feature",
+                        title: 'Error',
+                        text: "Please login to access this feature",
                     }).then(() => {
-                      navigate('/signin');
+                        navigate('/signin');
                     });
                 } else {
                     const payloadBase64 = accessToken.split('.')[1];
                     const decodedPayload = atob(payloadBase64);
                     const decodedToken = JSON.parse(decodedPayload);
                     const userId = decodedToken.user_id;
-    
+
                     const response = await axios.get('http://localhost:3100/wishlist/getitems', {
                         params: { userId: userId }
                     });
-    
+
                     setWishlistItems(response.data);
                 }
             } catch (error) {
@@ -37,7 +37,7 @@ function Mywishlist() {
         };
 
         fetchWishlistItems();
-    }, [accessToken]); 
+    }, [accessToken, navigate]);
 
     const handleDelete = async (productId) => {
         try {
@@ -45,13 +45,6 @@ function Mywishlist() {
                 console.error("Access token not found in localStorage");
                 return;
             }
-
-            setWishlistItems(prevItems =>
-                prevItems.map(wishlist => ({
-                    ...wishlist,
-                    products: wishlist.products.filter(product => product._id !== productId)
-                })).filter(wishlist => wishlist.products.length > 0)
-            );
 
             const payloadBase64 = accessToken.split('.')[1];
             const decodedPayload = atob(payloadBase64);
@@ -61,14 +54,28 @@ function Mywishlist() {
             await axios.delete('http://localhost:3100/wishlist/delete', {
                 data: { userId: userId, productId: productId }
             });
+
+            // Update state to remove deleted product
+            setWishlistItems(prevItems =>
+                prevItems.map(wishlist => ({
+                    ...wishlist,
+                    products: wishlist.products.filter(product => product._id !== productId)
+                })).filter(wishlist => wishlist.products.length > 0)
+            );
+
+            // Update localStorage to remove deleted product
+            const storedWishItems = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+            const updatedWishItems = storedWishItems.filter(itemId => itemId !== productId);
+            localStorage.setItem('wishlistItems', JSON.stringify(updatedWishItems));
         } catch (error) {
             console.error("Error deleting wishlist item:", error);
+
             const payloadBase64 = accessToken.split('.')[1];
             const decodedPayload = atob(payloadBase64);
             const decodedToken = JSON.parse(decodedPayload);
             const userId = decodedToken.user_id;
 
-            const response = await axios.get('http://localhost:3100/wishlist/item', {
+            const response = await axios.get('http://localhost:3100/wishlist/getitems', {
                 params: { userId: userId }
             });
 
@@ -117,9 +124,3 @@ function Mywishlist() {
 }
 
 export default Mywishlist;
-
-
-
-
-
-

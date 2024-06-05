@@ -58,6 +58,7 @@ function Navbar({ setKeyword, onCategorySelect }) {
                         <li><Link to="/mycart">My Cart</Link></li>
                         <li><Link to="/myorders">My Orders</Link></li>
                         <li><Link to="/mywishlist">My Wishlist</Link></li>
+                        <li><Link to="/getproducts">seller</Link></li>
                     </ul>
 
                     <div className="md:flex items-center mt-2 md:mt-0 relative w-full md:w-auto">

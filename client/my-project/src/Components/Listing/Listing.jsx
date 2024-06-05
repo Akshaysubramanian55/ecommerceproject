@@ -6,7 +6,7 @@ import Footer from "../Footer/Footer";
 
 function GetProduct() {
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [displayProducts, setDisplayProducts] = useState(false);
 
@@ -19,36 +19,36 @@ function GetProduct() {
         }
     };
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const payloadBase64 = token.split('.')[1];
-                const decodedPayload = atob(payloadBase64);
-                const decodedToken = JSON.parse(decodedPayload);
-                const userId = decodedToken.user_id; // Extracting userId from decoded token
-                console.log(userId);
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const payloadBase64 = token.split('.')[1];
+            const decodedPayload = atob(payloadBase64);
+            const decodedToken = JSON.parse(decodedPayload);
+            const userId = decodedToken.user_id; // Extracting userId from decoded token
+            console.log(userId);
 
-                const response = await axios.get('http://localhost:3100/getproduct', {
-                    params: {
-                        userId: userId // Sending userId as a query parameter
-                    }
-                });
+            const response = await axios.get('http://localhost:3100/getproduct', {
+                params: {
+                    userId: userId // Sending userId as a query parameter
+                }
+            });
 
-                setProducts(response.data.data); // Assuming response.data.data contains products array
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching products:', error);
-                setError('Error fetching products. Please try again later.');
-                setLoading(false);
-            }
-        };
-
-        fetchProducts();
-    }, []);
+            setProducts(response.data.data); // Assuming response.data.data contains products array
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            setError('Error fetching products. Please try again later.');
+            setLoading(false);
+        }
+    };
 
     const handleProductToggle = (showProducts) => {
         setDisplayProducts(showProducts);
+        if (showProducts && products.length === 0) {
+            fetchProducts();
+        }
     };
 
     return (
@@ -104,6 +104,7 @@ function GetProduct() {
 }
 
 export default GetProduct;
+
 
 
 

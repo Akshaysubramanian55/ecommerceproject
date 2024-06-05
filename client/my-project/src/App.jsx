@@ -10,6 +10,7 @@ import CartProduct from './Components/Cart/Cart';
 import Mycartobjects from './Components/Mycartobjects/Mycartobj';
 import Order from  './Components/Order/Order';
 import Mywishlist from './Components/Mywishlist/Mywishlist';
+import Sellerlogin from './Components/Sellerlogin/Sellerlogin';
 function App() {
 
   return (
@@ -27,7 +28,7 @@ function App() {
             <Route path='/mycart' exact element={<Mycartobjects />} />
             <Route path='/myorders' exact element={<Order/>}/>
             <Route path='/mywishlist' exact element={<Mywishlist/>}/>
-
+            <Route path='/sellerlogin' exact element={<Sellerlogin/>}/>
           </Routes>
         </div>
       </Router>

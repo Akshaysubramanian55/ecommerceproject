@@ -18,6 +18,7 @@ function CartProduct() {
     const [reviewSubmitted, setReviewSubmitted] = useState(false);
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [userId, setUserId] = useState("");
+    const [userEmail, setUserEmail] = useState("");
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -40,6 +41,11 @@ function CartProduct() {
             const decodedPayload = atob(payloadBase64);
             const decodedToken = JSON.parse(decodedPayload);
             setUserId(decodedToken.user_id);
+        }
+
+        const email = localStorage.getItem('email');
+        if (email) {
+            setUserEmail(email);
         }
 
         // Check if product is already added to cart
@@ -104,7 +110,7 @@ function CartProduct() {
             const userId = decodedToken.user_id;
 
             const payload = { userId, productId };
-            console.log("Payload being sent to the server:", payload); // Add this line for debugging
+            console.log("Payload being sent to the server:", payload);
 
             await axios.post(`http://localhost:3100/cart/add`, payload);
             
@@ -134,6 +140,8 @@ function CartProduct() {
         );
     }
 
+    const isOwner = userEmail && product && userEmail === product.contactEmail;
+
     return (
         <div className="bg-gray-100 min-h-screen py-8">
             <div className="container mx-auto px-4">
@@ -148,26 +156,32 @@ function CartProduct() {
                                     className="w-full h-80 object-contain mb-4 rounded-lg shadow-lg"
                                 />
                                 <div className="w-full flex justify-around mt-4 space-x-2">
-                                    {isAddedToCart ? (
-                                        <button
-                                            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105"
-                                        >
-                                            Added to Cart
-                                        </button>
+                                    {isOwner ? (
+                                        <p className="text-red-600 font-bold">This product belongs to you</p>
                                     ) : (
-                                        <button
-                                            onClick={addToCart}
-                                            className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105"
-                                        >
-                                            Add to Cart
-                                        </button>
+                                        <>
+                                            {isAddedToCart ? (
+                                                <button
+                                                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105"
+                                                >
+                                                    Added to Cart
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={addToCart}
+                                                    className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105"
+                                                >
+                                                    Add to Cart
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => setShowReviewForm(!showReviewForm)}
+                                                className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105"
+                                            >
+                                                {showReviewForm ? "Hide Review Form" : "Add Review"}
+                                            </button>
+                                        </>
                                     )}
-                                    <button
-                                        onClick={() => setShowReviewForm(!showReviewForm)}
-                                        className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline transition-transform transform hover:scale-105"
-                                    >
-                                        {showReviewForm ? "Hide Review Form" : "Add Review"}
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -229,12 +243,3 @@ function CartProduct() {
 }
 
 export default CartProduct;
-
-
-
-
-
-
-
-
-

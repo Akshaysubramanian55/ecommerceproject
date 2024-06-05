@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from 'sweetalert2'; // Import SweetAlert2
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
@@ -68,6 +68,15 @@ function MyCartObjects() {
     const newQuantity = (quantities[productId] || 1) + delta;
     if (newQuantity > 0) {
       setQuantities({ ...quantities, [productId]: newQuantity });
+    }
+  };
+
+  const handleToggleAllProducts = (event) => {
+    if (event.target.checked) {
+      const allProductIds = cartItems.map(item => item.productId._id);
+      setSelectedProducts(allProductIds);
+    } else {
+      setSelectedProducts([]);
     }
   };
 
@@ -165,14 +174,20 @@ function MyCartObjects() {
   return (
     <div className="container">
       <h1 className="my-4 text-3xl font-bold text-center text-indigo-700">My Cart</h1>
+      <div className="text-center my-4">
+        <input
+          type="checkbox"
+          onChange={(e) => handleToggleAllProducts(e)}
+          checked={selectedProducts.length === cartItems.length && cartItems.length > 0}
+        />
+        <label className="ml-2">Select All</label>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {cartItems.map((cartItem) => (
           <div key={cartItem._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img
-              src={`http://localhost:3100${cartItem.productId.imageFile}`}
-              className="w-full h-64 object-contain"
-              alt={cartItem.productId.productName}
-            />
+            <Link to={`/cartproduct/${cartItem.productId._id}`}>
+              <img src={`http://localhost:3100${cartItem.productId.imageFile}`} alt={cartItem.productId.name} className="w-full h-64 object-contain" />
+            </Link>
             <div className="p-4">
               <h3 className="text-xl font-bold text-indigo-700">{cartItem.productId.productName}</h3>
               <p className="text-lg text-gray-800 my-2">
@@ -180,41 +195,42 @@ function MyCartObjects() {
               </p>
               <p className="text-lg text-gray-800 my-2">
                 <strong>Quantity:</strong>
-                <button 
-                  className="ml-2 p-1 bg-gray-200 rounded"
-                  onClick={() => handleQuantityChange(cartItem.productId._id, -1)}
-                >
-                  <FontAwesomeIcon icon={faMinus} />
-                </button>
-                <span className="mx-2">{quantities[cartItem.productId._id]}</span>
-                <button 
-                  className="p-1 bg-gray-200 rounded"
-                  onClick={() => handleQuantityChange(cartItem.productId._id, 1)}
-                >
-                  <FontAwesomeIcon icon={faPlus} />
-                </button>
-              </p>
-              <p className="text-lg text-gray-800 my-2">
-                <input
-                  type="checkbox"
-                  value={cartItem.productId._id}
-                  onChange={(e) => handleCheckboxChange(e, cartItem.productId._id)}
-                /> Select
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="text-center mt-8">
-        <h2 className="text-2xl font-bold text-indigo-700">Total Price: Rs{totalPrice.toFixed(2)}</h2>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-4" onClick={handlePurchase}>Purchase</button>
-        <span> <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={handleDeleteProduct}>Delete Selected</button></span>
-      </div>
-    </div>
-  );
-}
-
-export default MyCartObjects;
+                <button
+                                  className="ml-2 p-1 bg-gray-200 rounded"
+                                  onClick={() => handleQuantityChange(cartItem.productId._id, -1)}
+                                >
+                                  <FontAwesomeIcon icon={faMinus} />
+                                </button>
+                                <span className="mx-2">{quantities[cartItem.productId._id]}</span>
+                                <button
+                                  className="p-1 bg-gray-200 rounded"
+                                  onClick={() => handleQuantityChange(cartItem.productId._id, 1)}
+                                >
+                                  <FontAwesomeIcon icon={faPlus} />
+                                </button>
+                              </p>
+                              <p className="text-lg text-gray-800 my-2">
+                                <input
+                                  type="checkbox"
+                                  value={cartItem.productId._id}
+                                  onChange={(e) => handleCheckboxChange(e, cartItem.productId._id)}
+                                /> Select
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-center mt-8">
+                        <h2 className="text-2xl font-bold text-indigo-700">Total Price: Rs{totalPrice.toFixed(2)}</h2>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-4" onClick={handlePurchase}>Purchase</button>
+                        <span> <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={handleDeleteProduct}>Delete Selected</button></span>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                export default MyCartObjects;
+                
 
 
 

@@ -95,6 +95,7 @@ exports.signin = async function (req, res) {
             return res.status(200).json({
                 token: accessToken,
                 role: user.role,
+                email:email,
                 cart: cartProductIds,
                 wishlist: wishlistProductIds,
                 message: "Login Successful"
