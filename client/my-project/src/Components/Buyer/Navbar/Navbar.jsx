@@ -40,27 +40,28 @@ function Navbar({ setKeyword, onCategorySelect }) {
     return (
         <nav className="bg-gray-600 py-2 border-b border-white-600">
             <div className="container mx-auto px-4 md:flex md:items-center md:justify-between">
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between w-full md:w-auto">
                     <div className="text-white text-lg font-bold">My Store</div>
                     <button className="text-white md:hidden" onClick={toggleMenu}>
                         <FontAwesomeIcon icon={menuOpen ? faTimes : faBars} size="lg" />
                     </button>
                 </div>
 
-                <div className={`md:flex ${menuOpen ? "flex" : "hidden"} flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 text-white mt-2 md:mt-0 w-full`}>
-                    <ul className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
-                        <li><Link to="/">Home</Link></li>
+                <div className={`md:flex ${menuOpen ? "flex" : "hidden"} flex-col md:flex-row md:items-center md:space-x-4 text-white mt-2 md:mt-0 w-full md:w-auto`}>
+                    <ul className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0 w-full md:w-auto">
+                        <li className="mx-2"><Link to="/">Home</Link></li>
                         {isLoggedIn ? (
-                            <li className="cursor-pointer" onClick={handleLogout}>Log Out</li>
+                            <li className="mx-2 cursor-pointer" onClick={handleLogout}>Log Out</li>
                         ) : (
-                            <li><Link to="/signin">Sign In</Link></li>
+                            <li className="mx-2"><Link to="/signin">Sign In</Link></li>
                         )}
-                        <li><Link to="/mycart">My Cart</Link></li>
-                        <li><Link to="/myorders">My Orders</Link></li>
-                        <li><Link to="/mywishlist">My Wishlist</Link></li>
+                        <li className="mx-2"><Link to="/mycart">My Cart</Link></li>
+                        <li className="mx-2"><Link to="/myorders">My Orders</Link></li>
+                        <li className="mx-2"><Link to="/mywishlist">My Wishlist</Link></li>
+                        <li className="mx-2"><Link to="/getproducts">Become a seller</Link></li>
                     </ul>
 
-                    <div className="md:flex items-center mt-2 md:mt-0 relative w-full md:w-auto">
+                    <div className="flex items-center mt-2 md:mt-0 relative w-full md:w-auto">
                         <div className="flex items-center w-full md:w-auto">
                             <img src={filter} alt="Filter" className="w-6 h-6 mr-2 cursor-pointer" onClick={() => setShowDropdown(!showDropdown)} />
                             <input
@@ -88,4 +89,5 @@ function Navbar({ setKeyword, onCategorySelect }) {
 }
 
 export default Navbar;
+;
 

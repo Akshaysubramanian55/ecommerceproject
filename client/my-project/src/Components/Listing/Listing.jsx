@@ -21,6 +21,7 @@ function GetProduct() {
 
     const fetchProducts = async () => {
         setLoading(true);
+        setError(null);  // Reset error state before making a new request
         try {
             const token = localStorage.getItem('token');
             const payloadBase64 = token.split('.')[1];
@@ -60,7 +61,9 @@ function GetProduct() {
                     {loading ? (
                         <p className="text-gray-600">Loading...</p>
                     ) : error ? (
-                        <p className="text-red-600">{error}</p>
+                        <p className="text-red-600">No Products</p>
+                    ) : products.length === 0 ? (
+                        <p className="text-gray-600">No products available.</p>
                     ) : (
                         products.map((product) => (
                             <div key={product._id} className="bg-white rounded-lg overflow-hidden shadow-lg border-2 border-gray-200 hover:border-blue-500">
@@ -104,15 +107,3 @@ function GetProduct() {
 }
 
 export default GetProduct;
-
-
-
-
-
-
-
-
-
-
-
-

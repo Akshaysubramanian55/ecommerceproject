@@ -111,6 +111,9 @@ function Sellerlogin() {
             setLoading(false);
         }
     };
+
+    const userEmail = localStorage.getItem('email');
+
     return (
         <div className="min-h-screen">
             <Navbar setKeyword={setKeyword} onCategorySelect={handleCategorySelect} />
@@ -129,50 +132,60 @@ function Sellerlogin() {
                     <p className="text-red-600 text-lg">{error}</p>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {products.map((product) => (
-                            <div key={product._id} className="relative">
-                                <Link to={`/cartproduct/${product._id}`}>
-                                    <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-white transition duration-300 ease-in-out transform hover:scale-105">
-                                        {product.imageFile && (
-                                            <img
-                                                src={`http://localhost:3100${product.imageFile}`}
-                                                alt={product.productName}
-                                                className="w-full h-64 object-contain rounded-lg shadow-md"
-                                                style={{ objectFit: 'contain' }}
-                                            />
-                                        )}
-                                        <div className="p-6">
-                                            <h3 className="text-xl font-semibold mb-2 text-yellow-700">{product.productName}</h3>
-                                            <p className="text-yellow-600 mb-2">Price: <span className="text-green-600 font-semibold">Rs.{product.price}</span></p>
-
-                                            <div className="mb-2">
-                                                <ReactStars
-                                                    count={5}
-                                                    value={calculateAverageRating(product.reviews)}
-                                                    size={24}
-                                                    edit={false}
-                                                    color2={'#ffd700'}
+                        {products.length > 0 ? (
+                            products.map((product) => (
+                                <div key={product._id} className="relative">
+                                    <Link to={`/cartproduct/${product._id}`}>
+                                        <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-white transition duration-300 ease-in-out transform hover:scale-105">
+                                            {product.imageFile && (
+                                                <img
+                                                    src={`http://localhost:3100${product.imageFile}`}
+                                                    alt={product.productName}
+                                                    className="w-full h-64 object-contain rounded-lg shadow-md"
+                                                    style={{ objectFit: 'contain' }}
                                                 />
-                                            </div>
+                                            )}
+                                            <div className="p-6">
+                                                <h3 className="text-xl font-semibold mb-2 text-yellow-700">{product.productName}</h3>
+                                                <p className="text-yellow-600 mb-2">Price: <span className="text-green-600 font-semibold">Rs.{product.price}</span></p>
 
-                                            <div className="flex flex-wrap mb-2">
-                                                {product.tags.split(',').map((tag) => (
-                                                    <span key={tag} className="text-blue-600 bg-blue-100 px-2 py-1 rounded-md mr-2 mb-2">{tag.trim()}</span>
-                                                ))}
-                                            </div>
+                                                <div className="mb-2">
+                                                    <ReactStars
+                                                        count={5}
+                                                        value={calculateAverageRating(product.reviews)}
+                                                        size={24}
+                                                        edit={false}
+                                                        color2={'#ffd700'}
+                                                    />
+                                                </div>
 
-                                            <p className="text-gray-600 mb-2">Shipping Method: <span className="text-purple-600">{product.shippingMethod}</span></p>
+                                                <div className="flex flex-wrap mb-2">
+                                                    {product.tags.split(',').map((tag) => (
+                                                        <span key={tag} className="text-blue-600 bg-blue-100 px-2 py-1 rounded-md mr-2 mb-2">{tag.trim()}</span>
+                                                    ))}
+                                                </div>
+
+                                                <p className="text-gray-600 mb-2">Shipping Method: <span className="text-purple-600">{product.shippingMethod}</span></p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Link>
-                                <button
-                                    className="absolute top-2 right-2"
-                                    onClick={() => handleFavoriteAction(product._id)}
-                                >
-                                    <FontAwesomeIcon icon={favorites.includes(product._id) ? fasHeart : farHeart} size="lg" style={{ color: favorites.includes(product._id) ? "red" : "currentColor" }} />
-                                </button>
-                            </div>
-                        ))}
+                                    </Link>
+                                    {userEmail === product.contactEmail ? (
+                                        <div className="absolute top-2 right-2 text-red-600 font-bold bg-white p-2 rounded-md shadow-md">
+                                            Your Product
+                                        </div>
+                                    ) : (
+                                        <button
+                                            className="absolute top-2 right-2"
+                                            onClick={() => handleFavoriteAction(product._id)}
+                                        >
+                                            <FontAwesomeIcon icon={favorites.includes(product._id) ? fasHeart : farHeart} size="lg" style={{ color: favorites.includes(product._id) ? "red" : "currentColor" }} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-600 text-lg">No products available.</p>
+                        )}
                     </div>
                 )}
             </div>
